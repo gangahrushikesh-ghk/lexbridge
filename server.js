@@ -60,7 +60,7 @@ app.use(express.json({limit:'200kb'}));app.use(express.static(path.join(__dirnam
 const up=multer({storage:multer.diskStorage({destination:path.join(DIR,'files'),filename:(q,f,cb)=>cb(null,uid())}),limits:{fileSize:10e6}});
 const DEMO=LAW.map(r=>({email:r[0],label:BL.map(x=>x[0].toUpperCase()+x.slice(1))[BL.indexOf(bandFor({cat:r[2],court:r[3],exp:r[6]}))]+' · '+r[1].replace(/^(Sr\. )?Adv\. /,'')})).sort((a,b)=>BL.indexOf(a.label.split(' ')[0].toLowerCase())-BL.indexOf(b.label.split(' ')[0].toLowerCase()));
 app.get('/api/health',(q,r)=>r.json({ok:true,lawyers:Object.values(db.users).filter(u=>u.role==='lawyer').length,uptime:Math.round(process.uptime())}));
-app.get('/api/meta',(q,r)=>r.json({demo:DEMO,bands:BANDS,cities:Object.keys(CITIES),checks:CHECK,ice:[{urls:'stun:stun.l.google.com:19302'},...(process.env.TURN_URL?[{urls:process.env.TURN_URL,username:process.env.TURN_USER,credential:process.env.TURN_PASS}]:[])]}));
+app.get('/api/meta',(q,r)=>r.json({demo:DEMO,bands:BANDS,cities:Object.keys(CITIES),checks:CHECK,ice:[{urls:'stun:stun.l.google.com:19302'},...(process.env.TURN_URL?[{urls:process.env.TURN_URL.split(','),username:process.env.TURN_USER,credential:process.env.TURN_PASS}]:[])]}));
 const session=(r,u)=>{const t=crypto.randomBytes(24).toString('hex');db.sessions[t]=u.id;save();r.json({token:t,user:pubU(u)})};
 app.post('/api/register',(q,r)=>{const b=q.body||{},email=String(b.email||'').trim().toLowerCase();
 if(!b.name||!/^\S+@\S+\.\S+$/.test(email)||String(b.password||'').length<6||!CITIES[b.city]||!['client','lawyer'].includes(b.role))return bad(r,'Fill all fields (password min 6 chars)');
